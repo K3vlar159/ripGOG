@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+
+<!-- by K3vlar -->
+
+
+<html lang="en">
+<head>
+<meta charset="UTF-8"> 
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>rip GOG</title>
+<style>
+  .gameDetails {
+    display: none;
+  }
+  .fileList {
+    font-size: 0.8em; /* Adjust the font size as needed */
+  }
+  h2:hover {
+    color: blue;
+    cursor: pointer;
+  }
+  .gameDetails {
+    display: none;
+    border: 1px solid #ccc; /* Add border */
+    padding: 10px; /* Add padding */
+    margin-top: 5px; /* Add margin */
+  }
+</style>
+</head>
+<body>
+
+<h1>rip GOG</h1>
+<input type="text" id="searchInput" placeholder="Search for a game title..." onkeyup="filterGames()">
+
+<div id="gamesList"></div>
+
+<script>
+ // Fetch game data from gameData.json
+  fetch('gameData.json')
+    .then(response => response.json())
+    .then(data => {
+      // Call function to generate HTML
+      document.getElementById('gamesList').innerHTML = generateGamesList(data);
+    })
+    .catch(error => {
+      console.error('Error fetching game data:', error);
+    });
+
+  // Function to convert JSON data to HTML
+  function generateGamesList(data) {
+	var games = data.games;
+    var html = '';
+    for (var i = 0; i < games.length; i++) {
+      var game = games[i];
+      html += '<div>';
+      html += '<h2 onclick="toggleGameDetails(' + i + ')">' + game.title + '</h2>';
+      html += '<div class="gameDetails" id="gameDetails_' + i + '">';
+      html += '<h4>File list:</h4>';
+      html += '<ul class="fileList">'; // Add the class to the <ul> element
+      // Check if GAME files exist
+      if (game.files && game.files.GAME) {
+        for (var j = 0; j < game.files.GAME.length; j++) {
+          html += '<li>' + game.files.GAME[j].name + '</li>';
+        }
+      } else {
+        html += '<li>Not found</li>';
+      }
+      html += '</ul>';
+      html += '<h3>Download links:</h3>';
+      html += '<ul>';
+      // Check if GAME links exist
+      if (game.links && game.links.GAME) {
+        for (var k = 0; k < game.links.GAME.length; k++) {
+          html += '<li><a href="' + game.links.GAME[k].links[0].link + '">' + game.links.GAME[k].name + '</a></li>';
+        }
+      } else {
+        html += '<li>No links available</li>';
+      }
+      html += '</ul>';
+      html += '</div>';
+      html += '</div>';
+    }
+    return html;
+  }
+
+  // Function to toggle display of game details
+  function toggleGameDetails(index) {
+    var gameDetails = document.getElementById('gameDetails_' + index);
+    if (gameDetails.style.display === 'block') {
+      gameDetails.style.display = 'none';
+    } else {
+      gameDetails.style.display = 'block';
+    }
+  }
+  
+  // Function to filter game titles
+  function filterGames() {
+    var input, filter, games, gameTitles, i;
+    input = document.getElementById('searchInput');
+    filter = input.value.toUpperCase();
+    games = document.getElementById('gamesList');
+    gameTitles = games.getElementsByTagName('h2');
+    for (i = 0; i < gameTitles.length; i++) {
+      if (gameTitles[i].innerHTML.toUpperCase().indexOf(filter) > -1) {
+        gameTitles[i].parentElement.style.display = '';
+      } else {
+        gameTitles[i].parentElement.style.display = 'none';
+      }
+    }
+  }
+</script>
+
+</body>
+</html>
